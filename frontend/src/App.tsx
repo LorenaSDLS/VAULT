@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import Home from './pages/Home';
-import CreatePool from './pages/CreatePool';
+import CreatePool from './pages/CreateVault';
 import VaultDetail from './pages/VaultDetail';
 
 // Leemos la llave aquí adentro

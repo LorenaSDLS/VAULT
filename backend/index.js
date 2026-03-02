@@ -18,32 +18,29 @@ const ORG_ID = "org_5b917683-4872-4f0c-b2c6-1ac66d12cc6e";
 //const chipi = new Chipipay(process.env.CHIPI_SECRET_KEY);
 
 app.post('/api/vaults', async (req, res) => {
-    const { name, target_amount, type, num_people } = req.body;
+    const { name, target_amount, type, num_people, duration_months, release_weeks, criteria } = req.body;
 
     try {
-        console.log("🛠️ Creando baúl en Supabase (Modo Desarrollo)...");
-
         const { data, error } = await supabase
             .from('vaults')
             .insert([{ 
                 name, 
                 target_amount: parseFloat(target_amount), 
-                type: type || 'pool', 
-                num_people: parseInt(num_people) || 1,
-                wallet_address: `https://checkout.chipipay.com/mock-id-${Date.now()}`, 
+                type, 
+                num_people,
+                duration_months,
+                release_weeks,
+                criteria, // Asegúrate de que en Supabase esta columna sea de tipo 'text array' o '_text'
+                wallet_address: `https://checkout.chipipay.com/mock-${Date.now()}`,
                 collected_amount: 0,
-                participants: []
+                status: 'open'
             }])
             .select();
 
         if (error) throw error;
-        
-        console.log("✅ Baúl guardado correctamente.");
         res.status(201).json(data[0]);
-
     } catch (err) {
-        console.error("❌ Error:", err.message);
-        res.status(500).json({ error: "Error al guardar el baúl" });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -89,44 +86,55 @@ app.get('/api/vaults/:id', async (req, res) => {
 
 // Ruta para que un usuario se una al baúl
 app.post('/api/vaults/:id/join', async (req, res) => {
-    const { id } = req.params;
-    const { name } = req.body;
+    // CORRECCIÓN: En Express se usa req.params, NO useParams
+    const { id } = req.params; 
+    const { name, role } = req.body;
 
     try {
-        // 1. Primero obtenemos el baúl actual para ver quiénes ya están
+        console.log(`👤 Intento de unión: ${name} como ${role} al baúl ${id}`);
+
+        // 1. Obtenemos el baúl actual
         const { data: vault, error: fetchError } = await supabase
             .from('vaults')
-            .select('participants')
+            .select('*')
             .eq('id', id)
             .single();
 
         if (fetchError) throw fetchError;
 
-        // 2. Creamos la nueva lista de participantes
-        // Si no hay nadie (null), empezamos una lista nueva con el nombre
         const currentParticipants = vault.participants || [];
         
-        // Evitamos duplicados: si el nombre ya está, no hacemos nada
-        if (currentParticipants.includes(name)) {
-            return res.status(200).json({ message: "Ya eres parte de este baúl" });
+        // 2. Definimos el identificador según el rol
+        // Si es proveedor le ponemos la estrella, si no, solo el nombre
+        const identifier = role === 'provider' ? `🌟 ${name} (Proveedor)` : name;
+
+        // Evitamos duplicados
+        if (currentParticipants.includes(identifier)) {
+            return res.status(200).json({ message: "Ya registrado" });
         }
 
-        const updatedParticipants = [...currentParticipants, name];
+        const updatedParticipants = [...currentParticipants, identifier];
 
-        // 3. Actualizamos la fila en Supabase
+        // 3. Actualizamos en Supabase
         const { data, error: updateError } = await supabase
             .from('vaults')
-            .update({ participants: updatedParticipants })
+            .update({ 
+                participants: updatedParticipants,
+                // Si alguien fondea, podrías marcar el baúl como lleno (opcional para el demo)
+                collected_amount: role === 'provider' ? vault.target_amount : vault.collected_amount
+            })
             .eq('id', id)
             .select()
             .single();
 
         if (updateError) throw updateError;
 
+        console.log("✅ Registro actualizado con éxito");
         res.json(data);
+
     } catch (err) {
-        console.error("Error al unirse:", err);
-        res.status(500).json({ error: "No se pudo unir al baúl" });
+        console.error("❌ Error en el servidor:", err.message);
+        res.status(500).json({ error: "No se pudo procesar la solicitud" });
     }
 });
 
