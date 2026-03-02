@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background-color: #030712; /* Azul casi negro */
+  color: white;
+  font-family: sans-serif;
+}
