@@ -1,0 +1,60 @@
+
+
+# 🚀 VAULT | Becas & Crowdfunding 
+
+**VAULT** es una plataforma de financiamiento colectivo diseñada para democratizar el acceso a la educación y proyectos sociales. Utilizando infraestructura de pagos moderna, permitimos que comunidades se unan para fondear becas y objetivos comunes de forma transparente y eficiente.
+
+## ✨ Características Principales
+
+* **Creación de Baúles (Vaults):** Configura objetivos de ahorro con montos meta específicos.
+* **División Inteligente:** Calcula automáticamente cuánto debe aportar cada participante según el número de personas.
+* **Gestión de Becas:** (En progreso) Sistema para aplicar y asignar fondos a estudiantes o causas específicas.
+* **Integración Chipi (Beta):** Preparado para conectarse con la infraestructura de pagos de Chipipay para cobros en tiempo real.
+
+## 🛠️ Stack Tecnológico
+
+* **Frontend:** React.js + Vite + Tailwind CSS.
+* **Backend:** Node.js + Express.
+* **Autenticación:** Clerk (Login seguro y rápido).
+* **Base de Datos:** Supabase (PostgreSQL) para persistencia en tiempo real.
+* **Infraestructura de Pagos:** Chipipay SDK/API (Módulo de Tesorería).
+
+## 📦 Instalación y Configuración
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/tu-usuario/vault-hackathon.git
+cd vault-hackathon
+
+```
+
+### 2. Configurar el Backend
+
+Entra a la carpeta `backend`, instala las dependencias y configura tu `.env`:
+
+```bash
+cd backend
+npm install
+# Crea un archivo .env con:
+# SUPABASE_URL=tu_url
+# SUPABASE_SERVICE_ROLE_KEY=tu_key
+# CHIPI_SECRET_KEY=sk_...
+# PORT=3001
+npm start
+
+```
+
+### 3. Configurar el Frontend
+
+Entra a la carpeta `frontend`, instala las dependencias y configura tu `.env`:
+
+```bash
+cd ../frontend
+npm install
+# Crea un archivo .env con:
+# VITE_CLERK_PUBLISHABLE_KEY=pk_...
+# VITE_PUBLIC_CHIPI_API_KEY=pk_...
+npm run dev
+
+```
